@@ -42,6 +42,7 @@
 <script>
 (function () {
     document.addEventListener("mouseup", checkForSelection, false);
+    window.addEventListener("resize", redrawMarks, false);
 
     var el = document.querySelector('article');
     var pane = new marks.Pane(el);
@@ -72,6 +73,10 @@
             console.log("highlight clicked");
             if (!selecting) { pane.removeMark(h); }
         }, false);
+    }
+
+    function redrawMarks() {
+        pane.render();
     }
 }());
 </script>

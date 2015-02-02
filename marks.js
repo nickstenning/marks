@@ -5,9 +5,7 @@ export class Pane {
         this.marks = [];
 
         // Match the coordinates of the target element
-        setCoords(this.element, coords(this.target));
         this.element.style.position = 'absolute';
-
         // Disable pointer events
         this.element.setAttribute('pointer-events', 'none');
 
@@ -15,6 +13,8 @@ export class Pane {
         proxyMouseEvents(this.target, this.marks);
 
         container.appendChild(this.element);
+
+        this.render();
     }
 
     addMark(mark) {
@@ -36,6 +36,13 @@ export class Pane {
         var el = mark.unbind();
         this.element.removeChild(el);
         this.marks.splice(idx, 1);
+    }
+
+    render() {
+        setCoords(this.element, coords(this.target));
+        for (var m of this.marks) {
+            m.render();
+        }
     }
 }
 
