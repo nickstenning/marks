@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<style>
+    body {
+      font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      letter-spacing: 0.01rem;
+      font-size: 22px;
+      line-height: 1.5;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+    header, article {
+      width: 740px;
+      margin: 2em auto;
+    }
+</style>
+<script src="bundle.js"></script>
+
+<article>
+    <p>
+        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
+        eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam
+        voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet
+        clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit
+        amet.
+    </p>
+    <p>
+        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
+        eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam
+        voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet
+        clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit
+        amet.
+    </p>
+    <p>
+        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
+        eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam
+        voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet
+        clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit
+        amet.
+    </p>
+</article>
+
+<script>
+(function () {
+    document.addEventListener("mouseup", checkForSelection, false);
+
+    var el = document.querySelector('article');
+    var pane = new marks.Pane(el);
+    var selecting = false;
+
+    function checkForSelection() {
+        var selection = window.getSelection();
+
+        if (!selection.isCollapsed) {
+            // Set global state to reflect the fact we're making a selection.
+            // Used to stop click events from deleting older highlights when
+            // the click event is the result of a selection.
+            selecting = true;
+
+            makeHighlight(selection.getRangeAt(0));
+
+            // Clear the selection
+            selection.removeAllRanges();
+
+            // Reset the selecting state in the next tick.
+            setTimeout(function () { selecting = false; }, 0);
+        }
+    }
+
+    function makeHighlight(range) {
+        var h = pane.addMark(new marks.Highlight(range));
+        h.element.addEventListener("click", function () {
+            console.log("highlight clicked");
+            if (!selecting) { pane.removeMark(h); }
+        }, false);
+    }
+}());
+</script>
