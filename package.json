@@ -2,15 +2,9 @@
   "name": "marks",
   "version": "1.0.0",
   "description": "A library for drawing marks on web page text",
-  "main": "marks.js",
-  "dependencies": {},
-  "devDependencies": {
-    "6to5ify": "^4.0.0",
-    "browserify": "^8.1.1",
-    "watchify": "^2.3.0"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "homepage": "https://github.com/nickstenning/marks",
+  "bugs": {
+    "url": "https://github.com/nickstenning/marks/issues"
   },
   "repository": {
     "type": "git",
@@ -18,8 +12,24 @@
   },
   "author": "Nick Stenning",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/nickstenning/marks/issues"
+  "main": "lib/marks.js",
+  "dependencies": {},
+  "devDependencies": {
+    "babel": "^4.3.0",
+    "babelify": "^5.0.3",
+    "karma": "^0.12.31",
+    "karma-browserify": "^3.0.2",
+    "karma-mocha": "^0.1.10",
+    "karma-phantomjs-launcher": "^0.1.4",
+    "karma-referee": "^0.4.2",
+    "mocha": "^2.1.0",
+    "referee": "^1.1.1",
+    "referee-sinon": "^1.0.2",
+    "sinon": "^1.12.2"
   },
-  "homepage": "https://github.com/nickstenning/marks"
+  "scripts": {
+    "prepublish": "make clean default",
+    "test": "karma start --single-run",
+    "watch": "mkdir -p pkg && watchify -t babelify -s marks src/marks.js -o pkg/marks.js"
+  }
 }

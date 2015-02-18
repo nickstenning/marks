@@ -1,15 +1,33 @@
-SHELL:=/bin/bash
-PATH:=$(shell npm bin):$(PATH)
+.PHONY: default clean
 
-default: bundle.js
+SHELL := /bin/bash
+PATH  := $(shell npm bin):$(PATH)
+
+SRC = $(wildcard src/*.js)
+LIB = $(SRC:src/%.js=lib/%.js)
+
+BROWSERIFY = node_modules/karma-browserify/node_modules/.bin/browserify -t babelify
+
+default: $(LIB)
+
+pkg: pkg/marks.js
 
 clean:
-	rm bundle.js
+	rm -rf .deps/
+	rm -rf lib/
+	rm -rf pkg/
 
-watch:
-	watchify marks.js -t 6to5ify -s marks -o bundle.js
+lib/%.js: src/%.js
+	@mkdir -p $(@D)
+	babel $< -o $@
 
-bundle.js: marks.js
-	browserify $< -t 6to5ify -s marks -o $@
+pkg/marks.js: src/marks.js
+	@# Build all-in-one bundle
+	@mkdir -p $(@D)
+	$(BROWSERIFY) -s marks $< -o $@
 
-.PHONY: default clean watch
+	@# Compute dependencies for rebuilds
+	@mkdir -p .deps/
+	@$(BROWSERIFY) --list $< | sed 's#^#$@: #' >.deps/marks.d
+
+-include .deps/*.d
