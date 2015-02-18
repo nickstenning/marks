@@ -29,7 +29,7 @@
   },
   "scripts": {
     "prepublish": "make clean default",
-    "test": "karma start --single-run",
+    "test": "./node_modules/karma/bin/karma start --single-run",
     "watch": "mkdir -p pkg && watchify -t babelify -s marks src/marks.js -o pkg/marks.js"
   }
 }
