@@ -1,6 +1,8 @@
 module.exports = function(config) {
     config.set({
         files: [
+            'node_modules/babel/browser-polyfill.js',
+            'test/vendor/syn.js',
             'test/*.js'
         ],
         preprocessors: {

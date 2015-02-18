@@ -1,4 +1,6 @@
 import svg from './svg';
+import events from './events';
+
 
 export class Pane {
     constructor(target, container = document.body) {
@@ -12,7 +14,7 @@ export class Pane {
         this.element.setAttribute('pointer-events', 'none');
 
         // Set up mouse event proxying between the target element and the marks
-        proxyMouseEvents(this.target, this.marks);
+        events.proxyMouse(this.target, this.marks);
 
         container.appendChild(this.element);
 
@@ -66,6 +68,11 @@ export class Mark {
 
     render() {}
 
+    dispatchEvent(e) {
+        if (!this.element) return;
+        this.element.dispatchEvent(e);
+    }
+
     getBoundingClientRect() {
         return this.element.getBoundingClientRect();
     }
@@ -116,35 +123,6 @@ export class Highlight extends Mark {
 }
 
 
-function proxyMouseEvents(target, marks) {
-    function dispatch(e) {
-        // We walk through the tracked marks in reverse order so that events
-        // are sent to the most recently added (and hence tracked) marks first.
-        //
-        // This is the least surprising behaviour as it simulates the way the
-        // browser would work if later marks were drawn "on top of" earlier
-        // ones.
-        for (var i = marks.length - 1; i >= 0; i--) {
-            var m = marks[i];
-
-            if (!markContains(m, e.clientX, e.clientY)) {
-                continue;
-            }
-
-            // The event targets this mark, so dispatch a cloned event:
-            var clone = cloneMouseEvent(e);
-            m.element.dispatchEvent(clone);
-            // We only dispatch the cloned event to the first matching mark.
-            break;
-        }
-    }
-
-    for (var ev of ['mouseup', 'mousedown', 'click']) {
-        target.addEventListener(ev, (e) => dispatch(e), false);
-    }
-}
-
-
 function coords(el) {
     var rect = el.getBoundingClientRect();
     return {
@@ -161,55 +139,4 @@ function setCoords(el, coords) {
     el.style.left = `${coords.left}px`;
     el.style.height = `${coords.height}px`;
     el.style.width = `${coords.width}px`;
-}
-
-function cloneMouseEvent(e) {
-    var clone = new MouseEvent(e.type, {
-        // If we allow this event to bubble, then the rest of the document will
-        // see duplicate events.
-        bubbles: false,
-        // All other specified properties are copied from the event being
-        // cloned.
-        screenX: e.screenX,
-        screenY: e.screenY,
-        clientX: e.clientX,
-        clientY: e.clientY,
-        ctrlKey: e.ctrlKey,
-        shiftKey: e.shiftKey,
-        altKey: e.altKey,
-        metaKey: e.metaKey,
-        button: e.button,
-        buttons: e.buttons,
-        relatedTarget: e.relatedTarget,
-        region: e.region,
-        detail: e.detail,
-        view: e.view,
-        cancelable: e.cancelable
-    });
-    return clone;
-}
-
-
-function markContains(m, x, y) {
-    // Check overall bounding box first
-    var rect = m.getBoundingClientRect();
-    if (!rectContains(rect, x, y)) {
-        return false;
-    }
-
-    // Then continue to check each child rect
-    var rects = m.getClientRects();
-    for (var i = 0, len = rects.length; i < len; i++) {
-        if (rectContains(rects[i], x, y)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-
-function rectContains(r, x, y) {
-    var bottom = r.top + r.height;
-    var right = r.left + r.width;
-    return (r.top <= y && r.left <= x && bottom > y && right > x);
 }
