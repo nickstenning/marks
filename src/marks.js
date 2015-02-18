@@ -1,7 +1,9 @@
+import svg from './svg';
+
 export class Pane {
     constructor(target, container = document.body) {
         this.target = target;
-        this.element = createSVGElement('svg');
+        this.element = svg.createElement('svg');
         this.marks = [];
 
         // Match the coordinates of the target element
@@ -18,7 +20,7 @@ export class Pane {
     }
 
     addMark(mark) {
-        var g = createSVGElement('g');
+        var g = svg.createElement('g');
         this.element.appendChild(g);
         mark.bind(g);
 
@@ -103,7 +105,7 @@ export class Highlight extends Mark {
 
         for (var i = 0, len = rects.length; i < len; i++) {
             var r = rects[i];
-            var el = createSVGElement('rect');
+            var el = svg.createElement('rect');
             el.setAttribute('x', r.left - offset.left);
             el.setAttribute('y', r.top - offset.top);
             el.setAttribute('height', r.height);
@@ -160,12 +162,6 @@ function setCoords(el, coords) {
     el.style.height = `${coords.height}px`;
     el.style.width = `${coords.width}px`;
 }
-
-
-function createSVGElement(name) {
-    return document.createElementNS('http://www.w3.org/2000/svg', name);
-}
-
 
 function cloneMouseEvent(e) {
     var clone = new MouseEvent(e.type, {
