@@ -1,3 +1,5 @@
+import 'babelify/polyfill'; // needed for Object.assign
+
 export default {
     proxyMouse: proxyMouse
 };
