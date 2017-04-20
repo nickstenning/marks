@@ -1,7 +1,6 @@
 import svg from './svg';
 import events from './events';
 
-
 export class Pane {
     constructor(target, container = document.body) {
         this.target = target;
@@ -97,8 +96,9 @@ export class Highlight extends Mark {
 
     bind(element) {
         super.bind(element);
-        this.element.setAttribute('fill', 'rgb(255, 10, 10)');
-        this.element.setAttribute('fill-opacity', '0.3');
+        // this.element.setAttribute('fill', 'yellow');
+        // this.element.setAttribute('fill-opacity', '0.3');
+        this.element.classList.add("annotator-hl");
     }
 
     render() {
@@ -107,29 +107,57 @@ export class Highlight extends Mark {
             this.element.removeChild(this.element.firstChild);
         }
 
-        var rects = this.range.getClientRects();
+        var docFrag = this.element.ownerDocument.createDocumentFragment();
+        var rects = Array.from(this.range.getClientRects());
         var offset = this.element.getBoundingClientRect();
 
-        for (var i = 0, len = rects.length; i < len; i++) {
-            var r = rects[i];
+        // De-duplicate the boxes
+        var contains = function (rect1, rect2) {
+          return (
+            (rect2.right <= rect1.right) &&
+            (rect2.left >= rect1.left) &&
+            (rect2.top >= rect1.top) &&
+            (rect2.bottom <= rect1.bottom)
+          );
+        };
+
+        var filtered = rects.filter((box) => {
+          for (var i = 0; i < rects.length; i++) {
+            if (rects[i] === box) {
+              return true;
+            }
+            let contained = contains(rects[i], box);
+            if (contained) {
+              return false;
+            }
+          }
+          return true;
+        })
+
+        for (var i = 0, len = filtered.length; i < len; i++) {
+            var r = filtered[i];
             var el = svg.createElement('rect');
             el.setAttribute('x', r.left - offset.left);
             el.setAttribute('y', r.top - offset.top);
             el.setAttribute('height', r.height);
             el.setAttribute('width', r.width);
-            this.element.appendChild(el);
+            docFrag.appendChild(el);
         }
+
+        this.element.appendChild(docFrag);
+
     }
 }
 
 
 function coords(el) {
     var rect = el.getBoundingClientRect();
+
     return {
-        top: rect.top + document.body.scrollTop,
-        left: rect.left + document.body.scrollLeft,
-        height: rect.height,
-        width: rect.width
+        top: rect.top + el.ownerDocument.body.scrollTop,
+        left: rect.left + el.ownerDocument.body.scrollLeft,
+        height: rect.height + el.scrollHeight,
+        width: rect.width + el.scrollWidth
     };
 }
 
