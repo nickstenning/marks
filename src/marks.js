@@ -89,17 +89,24 @@ export class Mark {
 
 
 export class Highlight extends Mark {
-    constructor(range, className) {
+    constructor(range, className, attributes) {
         super();
         this.range = range;
+        this.className = className;
+        this.attributes = attributes;
     }
 
     bind(element) {
         super.bind(element);
-        // this.element.setAttribute('fill', 'yellow');
-        // this.element.setAttribute('fill-opacity', '0.3');
-        if (className) {
-          this.element.classList.add(className);
+
+        for (var attr in this.attributes) {
+          if (this.attributes.hasOwnProperty(attr)) {
+            this.element.setAttribute(attr, this.attributes[attr]);
+          }
+        }
+
+        if (this.className) {
+          this.element.classList.add(this.className);
         }
     }
 
