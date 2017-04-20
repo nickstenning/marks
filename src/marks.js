@@ -89,7 +89,7 @@ export class Mark {
 
 
 export class Highlight extends Mark {
-    constructor(range) {
+    constructor(range, className) {
         super();
         this.range = range;
     }
@@ -98,7 +98,9 @@ export class Highlight extends Mark {
         super.bind(element);
         // this.element.setAttribute('fill', 'yellow');
         // this.element.setAttribute('fill-opacity', '0.3');
-        this.element.classList.add("annotator-hl");
+        if (className) {
+          this.element.classList.add(className);
+        }
     }
 
     render() {

@@ -13,7 +13,7 @@
   "author": "Nick Stenning",
   "license": "MIT",
   "main": "lib/marks.js",
-  "jsnext:main": "src/marks.js",
+  "module": "src/marks.js",
   "dependencies": {},
   "devDependencies": {
     "babel": "^4.3.0",
