@@ -85,19 +85,44 @@ export class Mark {
         }
         return rects;
     }
+
+    filteredRanges() {
+      var rects = Array.from(this.range.getClientRects());
+
+      // De-duplicate the boxes
+      return rects.filter((box) => {
+        for (var i = 0; i < rects.length; i++) {
+          if (rects[i] === box) {
+            return true;
+          }
+          let contained = contains(rects[i], box);
+          if (contained) {
+            return false;
+          }
+        }
+        return true;
+      })
+    }
+
 }
 
-
 export class Highlight extends Mark {
-    constructor(range, className, attributes) {
+    constructor(range, className, data, attributes) {
         super();
         this.range = range;
         this.className = className;
-        this.attributes = attributes;
+        this.data = data || {};
+        this.attributes = attributes || {};
     }
 
     bind(element) {
         super.bind(element);
+
+        for (var attr in this.data) {
+          if (this.data.hasOwnProperty(attr)) {
+            this.element.dataset[attr] = this.data[attr];
+          }
+        }
 
         for (var attr in this.attributes) {
           if (this.attributes.hasOwnProperty(attr)) {
@@ -117,31 +142,8 @@ export class Highlight extends Mark {
         }
 
         var docFrag = this.element.ownerDocument.createDocumentFragment();
-        var rects = Array.from(this.range.getClientRects());
+        var filtered = this.filteredRanges();
         var offset = this.element.getBoundingClientRect();
-
-        // De-duplicate the boxes
-        var contains = function (rect1, rect2) {
-          return (
-            (rect2.right <= rect1.right) &&
-            (rect2.left >= rect1.left) &&
-            (rect2.top >= rect1.top) &&
-            (rect2.bottom <= rect1.bottom)
-          );
-        };
-
-        var filtered = rects.filter((box) => {
-          for (var i = 0; i < rects.length; i++) {
-            if (rects[i] === box) {
-              return true;
-            }
-            let contained = contains(rects[i], box);
-            if (contained) {
-              return false;
-            }
-          }
-          return true;
-        })
 
         for (var i = 0, len = filtered.length; i < len; i++) {
             var r = filtered[i];
@@ -151,6 +153,52 @@ export class Highlight extends Mark {
             el.setAttribute('height', r.height);
             el.setAttribute('width', r.width);
             docFrag.appendChild(el);
+        }
+
+        this.element.appendChild(docFrag);
+
+    }
+}
+
+export class Underline extends Highlight {
+    constructor(range, className, data, attributes) {
+        super(range, className, data,  attributes);
+    }
+
+    render() {
+        // Empty element
+        while (this.element.firstChild) {
+            this.element.removeChild(this.element.firstChild);
+        }
+
+        var docFrag = this.element.ownerDocument.createDocumentFragment();
+        var filtered = this.filteredRanges();
+        var offset = this.element.getBoundingClientRect();
+
+        for (var i = 0, len = filtered.length; i < len; i++) {
+            var r = filtered[i];
+
+            var rect = svg.createElement('rect');
+            rect.setAttribute('x', r.left - offset.left);
+            rect.setAttribute('y', r.top - offset.top);
+            rect.setAttribute('height', r.height);
+            rect.setAttribute('width', r.width);
+            rect.setAttribute('fill', 'none');
+
+
+            var line = svg.createElement('line');
+            line.setAttribute('x1', r.left - offset.left);
+            line.setAttribute('x2', r.left - offset.left + r.width);
+            line.setAttribute('y1', r.top - offset.top + r.height - 1);
+            line.setAttribute('y2', r.top - offset.top + r.height - 1);
+
+            line.setAttribute('stroke-width', 1);
+            line.setAttribute('stroke', 'black'); //TODO: match text color?
+            line.setAttribute('stroke-linecap', 'square');
+
+            docFrag.appendChild(rect);
+
+            docFrag.appendChild(line);
         }
 
         this.element.appendChild(docFrag);
@@ -176,4 +224,13 @@ function setCoords(el, coords) {
     el.style.left = `${coords.left}px`;
     el.style.height = `${coords.height}px`;
     el.style.width = `${coords.width}px`;
+}
+
+function contains(rect1, rect2) {
+  return (
+    (rect2.right <= rect1.right) &&
+    (rect2.left >= rect1.left) &&
+    (rect2.top >= rect1.top) &&
+    (rect2.bottom <= rect1.bottom)
+  );
 }
