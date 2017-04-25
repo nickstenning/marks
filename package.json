@@ -1,7 +1,7 @@
 {
-  "name": "marks",
+  "name": "marks-pane",
   "version": "1.0.0",
-  "description": "A library for drawing marks on web page text",
+  "description": "A library for drawing marks on a pane",
   "homepage": "https://github.com/fchasen/marks",
   "bugs": {
     "url": "https://github.com/fchasen/marks/issues"
@@ -10,11 +10,10 @@
     "type": "git",
     "url": "https://github.com/fchasen/marks"
   },
-  "author": "Nick Stenning",
+  "author": "Fred Chasen",
   "license": "MIT",
   "main": "lib/marks.js",
   "module": "src/marks.js",
-  "dependencies": {},
   "devDependencies": {
     "babel-core": "^6.22.1",
     "babel-loader": "^6.2.10",
@@ -33,10 +32,11 @@
     "mocha": "^2.1.0",
     "referee": "^1.1.1",
     "referee-sinon": "^1.0.2",
-    "sinon": "^1.12.2"
+    "sinon": "^1.12.2",
+    "babel-cli": "^6.22.2"
   },
   "scripts": {
-    "x-prepublish": "make clean default",
+    "prepublish": "make clean default",
     "test": "./node_modules/karma/bin/karma start --single-run",
     "watch": "mkdir -p pkg && watchify -t babelify -s marks src/marks.js -o pkg/marks.js"
   }
