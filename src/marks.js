@@ -213,8 +213,8 @@ function coords(el) {
     return {
         top: rect.top + el.ownerDocument.body.scrollTop,
         left: rect.left + el.ownerDocument.body.scrollLeft,
-        height: rect.height + el.scrollHeight,
-        width: rect.width + el.scrollWidth
+        height: el.scrollHeight,
+        // width: el.scrollWidth
     };
 }
 
