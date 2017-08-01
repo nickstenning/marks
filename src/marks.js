@@ -213,8 +213,8 @@ function coords(el) {
     return {
         top: rect.top + el.ownerDocument.body.scrollTop,
         left: rect.left + el.ownerDocument.body.scrollLeft,
-        height: el.scrollHeight,
-        // width: el.scrollWidth
+        height: rect.height + el.scrollHeight,
+        width: rect.width + el.scrollWidth
     };
 }
 
@@ -222,8 +222,8 @@ function coords(el) {
 function setCoords(el, coords) {
     el.style.top = `${coords.top}px`;
     el.style.left = `${coords.left}px`;
-    el.style.height = `${coords.height}px`;
-    el.style.width = `${coords.width}px`;
+    el.style.height = `100%`;
+    el.style.width = `100%`;
 }
 
 function contains(rect1, rect2) {
