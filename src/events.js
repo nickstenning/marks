@@ -27,7 +27,7 @@ export function proxyMouse(target, tracked) {
         for (var i = tracked.length - 1; i >= 0; i--) {
             var t = tracked[i];
 
-            if (!contains(t, e.clientX, e.clientY)) {
+            if (!contains(t, target, e.clientX, e.clientY)) {
                 continue;
             }
 
@@ -38,9 +38,24 @@ export function proxyMouse(target, tracked) {
         }
     }
 
-    for (var ev of ['mouseup', 'mousedown', 'click']) {
-        target.addEventListener(ev, (e) => dispatch(e), false);
+    if (target.nodeName === "iframe" || target.nodeName === "IFRAME") {
+
+      try {
+        // Try to get the contents if same domain
+        this.target = target.contentDocument;
+      } catch(err){
+        this.target = target;
+      }
+
+    } else {
+      this.target = target;
     }
+
+
+    for (var ev of ['mouseup', 'mousedown', 'click']) {
+        this.target.addEventListener(ev, (e) => dispatch(e), false);
+    }
+
 }
 
 
@@ -74,11 +89,16 @@ export function clone(e) {
  * @param y {Number}
  * @returns {Boolean}
  */
-function contains(item, x, y) {
+function contains(item, target, x, y) {
+    // offset
+    var offset = target.getBoundingClientRect();
+
     function rectContains(r, x, y) {
-        var bottom = r.top + r.height;
-        var right = r.left + r.width;
-        return (r.top <= y && r.left <= x && bottom > y && right > x);
+        var top = r.top - offset.top;
+        var left = r.left - offset.left;
+        var bottom = top + r.height;
+        var right = left + r.width;
+        return (top <= y && left <= x && bottom > y && right > x);
     }
 
     // Check overall bounding box first

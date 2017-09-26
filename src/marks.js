@@ -15,7 +15,8 @@ export class Pane {
         // Set up mouse event proxying between the target element and the marks
         events.proxyMouse(this.target, this.marks);
 
-        container.appendChild(this.element);
+        this.container = container;
+        this.container.appendChild(this.element);
 
         this.render();
     }
@@ -23,7 +24,7 @@ export class Pane {
     addMark(mark) {
         var g = svg.createElement('g');
         this.element.appendChild(g);
-        mark.bind(g);
+        mark.bind(g, this.container);
 
         this.marks.push(mark);
 
@@ -42,7 +43,7 @@ export class Pane {
     }
 
     render() {
-        setCoords(this.element, coords(this.target));
+        setCoords(this.element, coords(this.target, this.container));
         for (var m of this.marks) {
             m.render();
         }
@@ -55,8 +56,9 @@ export class Mark {
         this.element = null;
     }
 
-    bind(element) {
+    bind(element, container) {
         this.element = element;
+        this.container = container;
     }
 
     unbind() {
@@ -115,8 +117,8 @@ export class Highlight extends Mark {
         this.attributes = attributes || {};
     }
 
-    bind(element) {
-        super.bind(element);
+    bind(element, container) {
+        super.bind(element, container);
 
         for (var attr in this.data) {
           if (this.data.hasOwnProperty(attr)) {
@@ -144,12 +146,13 @@ export class Highlight extends Mark {
         var docFrag = this.element.ownerDocument.createDocumentFragment();
         var filtered = this.filteredRanges();
         var offset = this.element.getBoundingClientRect();
+        var container = this.container.getBoundingClientRect();
 
         for (var i = 0, len = filtered.length; i < len; i++) {
             var r = filtered[i];
             var el = svg.createElement('rect');
-            el.setAttribute('x', r.left - offset.left);
-            el.setAttribute('y', r.top - offset.top);
+            el.setAttribute('x', r.left - offset.left + container.left);
+            el.setAttribute('y', r.top - offset.top + container.top);
             el.setAttribute('height', r.height);
             el.setAttribute('width', r.width);
             docFrag.appendChild(el);
@@ -174,6 +177,7 @@ export class Underline extends Highlight {
         var docFrag = this.element.ownerDocument.createDocumentFragment();
         var filtered = this.filteredRanges();
         var offset = this.element.getBoundingClientRect();
+        var container = this.container.getBoundingClientRect();
 
         for (var i = 0, len = filtered.length; i < len; i++) {
             var r = filtered[i];
@@ -187,10 +191,10 @@ export class Underline extends Highlight {
 
 
             var line = svg.createElement('line');
-            line.setAttribute('x1', r.left - offset.left);
-            line.setAttribute('x2', r.left - offset.left + r.width);
-            line.setAttribute('y1', r.top - offset.top + r.height - 1);
-            line.setAttribute('y2', r.top - offset.top + r.height - 1);
+            line.setAttribute('x1', r.left - offset.left + container.left);
+            line.setAttribute('x2', r.left - offset.left + container.left + r.width);
+            line.setAttribute('y1', r.top - offset.top + container.top + r.height - 1);
+            line.setAttribute('y2', r.top - offset.top + container.top + r.height - 1);
 
             line.setAttribute('stroke-width', 1);
             line.setAttribute('stroke', 'black'); //TODO: match text color?
@@ -207,14 +211,15 @@ export class Underline extends Highlight {
 }
 
 
-function coords(el) {
+function coords(el, container) {
+    var offset = container.getBoundingClientRect();
     var rect = el.getBoundingClientRect();
 
     return {
-        top: rect.top + el.ownerDocument.body.scrollTop,
-        left: rect.left + el.ownerDocument.body.scrollLeft,
-        height: rect.height + el.scrollHeight,
-        width: rect.width + el.scrollWidth
+        top: rect.top - offset.top,
+        left: rect.left - offset.left,
+        height: el.scrollHeight,
+        width: el.scrollWidth
     };
 }
 
@@ -222,8 +227,8 @@ function coords(el) {
 function setCoords(el, coords) {
     el.style.top = `${coords.top}px`;
     el.style.left = `${coords.left}px`;
-    el.style.height = `100%`;
-    el.style.width = `100%`;
+    el.style.height = `${coords.height}px`;
+    el.style.width = `${coords.width}px`;
 }
 
 function contains(rect1, rect2) {
