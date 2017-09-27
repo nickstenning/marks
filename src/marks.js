@@ -183,8 +183,8 @@ export class Underline extends Highlight {
             var r = filtered[i];
 
             var rect = svg.createElement('rect');
-            rect.setAttribute('x', r.left - offset.left);
-            rect.setAttribute('y', r.top - offset.top);
+            rect.setAttribute('x', r.left - offset.left + container.left);
+            rect.setAttribute('y', r.top - offset.top + container.top);
             rect.setAttribute('height', r.height);
             rect.setAttribute('width', r.width);
             rect.setAttribute('fill', 'none');
