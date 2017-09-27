@@ -29,7 +29,7 @@ export function proxyMouse(target, tracked) {
             var x = e.clientX
             var y = e.clientY;
 
-            if (e.touches.length) {
+            if (e.touches && e.touches.length) {
               x = e.touches[0].clientX;
               y = e.touches[0].clientY;
             }
