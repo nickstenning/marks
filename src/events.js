@@ -26,8 +26,15 @@ export function proxyMouse(target, tracked) {
         // earlier ones.
         for (var i = tracked.length - 1; i >= 0; i--) {
             var t = tracked[i];
+            var x = e.clientX
+            var y = e.clientY;
 
-            if (!contains(t, target, e.clientX, e.clientY)) {
+            if (e.touches.length) {
+              x = e.touches[0].clientX;
+              y = e.touches[0].clientY;
+            }
+
+            if (!contains(t, target, x, y)) {
                 continue;
             }
 
@@ -51,8 +58,7 @@ export function proxyMouse(target, tracked) {
       this.target = target;
     }
 
-
-    for (var ev of ['mouseup', 'mousedown', 'click']) {
+    for (var ev of ['mouseup', 'mousedown', 'click', 'touchstart']) {
         this.target.addEventListener(ev, (e) => dispatch(e), false);
     }
 
