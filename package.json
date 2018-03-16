@@ -13,7 +13,7 @@
   "author": "Fred Chasen",
   "license": "MIT",
   "main": "lib/marks.js",
-  "module": "src/marks.js",
+  "module": "lib/marks.js",
   "devDependencies": {
     "babel-core": "^6.22.1",
     "babel-loader": "^6.2.10",
