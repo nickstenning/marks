@@ -225,10 +225,10 @@ function coords(el, container) {
 
 
 function setCoords(el, coords) {
-    el.style.top = `${coords.top}px`;
-    el.style.left = `${coords.left}px`;
-    el.style.height = `${coords.height}px`;
-    el.style.width = `${coords.width}px`;
+    el.style.setProperty('top', `${coords.top}px`, 'important');
+    el.style.setProperty('left', `${coords.left}px`, 'important');
+    el.style.setProperty('height', `${coords.height}px`, 'important');
+    el.style.setProperty('width', `${coords.width}px`, 'important');
 }
 
 function contains(rect1, rect2) {
