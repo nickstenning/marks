@@ -89,21 +89,15 @@ export class Mark {
     }
 
     filteredRanges() {
-      var rects = Array.from(this.range.getClientRects());
-
-      // De-duplicate the boxes
-      return rects.filter((box) => {
-        for (var i = 0; i < rects.length; i++) {
-          if (rects[i] === box) {
-            return true;
-          }
-          let contained = contains(rects[i], box);
-          if (contained) {
-            return false;
-          }
+        if (!this.range) {
+            return [];
         }
-        return true;
-      })
+
+        // De-duplicate the boxes
+        const rects = Array.from(this.range.getClientRects());
+        const stringRects = rects.map((r) => JSON.stringify(r));
+        const setRects = new Set(stringRects);
+        return Array.from(setRects).map((sr) => JSON.parse(sr));
     }
 
 }
