@@ -1,4 +1,4 @@
-import 'babelify/polyfill'; // needed for Object.assign
+// import 'babelify/polyfill'; // needed for Object.assign
 
 export default {
     proxyMouse: proxyMouse
@@ -26,8 +26,15 @@ export function proxyMouse(target, tracked) {
         // earlier ones.
         for (var i = tracked.length - 1; i >= 0; i--) {
             var t = tracked[i];
+            var x = e.clientX
+            var y = e.clientY;
 
-            if (!contains(t, e.clientX, e.clientY)) {
+            if (e.touches && e.touches.length) {
+              x = e.touches[0].clientX;
+              y = e.touches[0].clientY;
+            }
+
+            if (!contains(t, target, x, y)) {
                 continue;
             }
 
@@ -38,9 +45,23 @@ export function proxyMouse(target, tracked) {
         }
     }
 
-    for (var ev of ['mouseup', 'mousedown', 'click']) {
-        target.addEventListener(ev, (e) => dispatch(e), false);
+    if (target.nodeName === "iframe" || target.nodeName === "IFRAME") {
+
+      try {
+        // Try to get the contents if same domain
+        this.target = target.contentDocument;
+      } catch(err){
+        this.target = target;
+      }
+
+    } else {
+      this.target = target;
     }
+
+    for (var ev of ['mouseup', 'mousedown', 'click', 'touchstart']) {
+        this.target.addEventListener(ev, (e) => dispatch(e), false);
+    }
+
 }
 
 
@@ -74,11 +95,16 @@ export function clone(e) {
  * @param y {Number}
  * @returns {Boolean}
  */
-function contains(item, x, y) {
+function contains(item, target, x, y) {
+    // offset
+    var offset = target.getBoundingClientRect();
+
     function rectContains(r, x, y) {
-        var bottom = r.top + r.height;
-        var right = r.left + r.width;
-        return (r.top <= y && r.left <= x && bottom > y && right > x);
+        var top = r.top - offset.top;
+        var left = r.left - offset.left;
+        var bottom = top + r.height;
+        var right = left + r.width;
+        return (top <= y && left <= x && bottom > y && right > x);
     }
 
     // Check overall bounding box first

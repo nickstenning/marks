@@ -1,5 +1,5 @@
-src/
 test/
 Makefile
 karma.conf.js
 index.html
+.babelrc
